@@ -1,4 +1,5 @@
 import os
+from wsgiref import headers
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS, cross_origin
 import json
@@ -31,6 +32,7 @@ def build_actual_response(response):
                          "PUT, GET, POST, DELETE, OPTIONS")
     return response
 
+
 @app.route('/api/github', methods=['POST'])
 def github():
     # repo_name = "angular/angular"
@@ -38,7 +40,7 @@ def github():
     repo_name = body['repository']
     # Add your own GitHub Token to run it local
     token = os.environ.get(
-        'GITHUB_TOKEN', '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')
+        'GITHUB_TOKEN', 'ADD YOUR GITHUB TOKEN')
     github = login(token=token)
 
     today = date.today()
@@ -116,19 +118,40 @@ def github():
     org, name = repo_name.split("/")
     repository = github.repository(org, name)
 
-    json_response = {
-        "created": created_at_issues,
-        "closed": closed_at_issues,
-        "starCount": repository.stargazers_count,
-        "forkCount": repository.forks_count
-    }
-    
     '''
         1. Hit LSTM Microservice by passing issues_response as body
         2. LSTM Microservice will give a list of string containing image paths hosted on google cloud storage
         3. On recieving a valid response from LSTM Microservice, append the above json_response with the response from
             LSTM microservice
     '''
+    created_at_body = {
+        "issues": issues_reponse,
+        "type": "created_at"
+    }
+    closed_at_body = {
+        "issues": issues_reponse,
+        "type": "closed_at"
+    }
+
+    created_at_response = requests.post('https://lstm-github-forecasting-snujj6cqpq-uc.a.run.app/api/forecast',
+                                            json=created_at_body,
+                                            headers={'content-type': 'application/json'})
+    closed_at_response = requests.post('https://lstm-github-forecasting-snujj6cqpq-uc.a.run.app/api/forecast',
+                                            json=closed_at_body,
+                                            headers={'content-type': 'application/json'})
+
+    json_response = {
+        "created": created_at_issues,
+        "closed": closed_at_issues,
+        "starCount": repository.stargazers_count,
+        "forkCount": repository.forks_count,
+        "createdAtImageUrls": {
+            **created_at_response.json(),
+        },
+        "closedAtImageUrls": {
+            **closed_at_response.json(),
+        },
+    }
 
     return jsonify(json_response)
 
