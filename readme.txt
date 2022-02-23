@@ -8,10 +8,9 @@ Step1: What will Flask do?
           to predict and to forecast the data
        5. The response obtained from LSTM microservice is also return back to client. 
 
-Step2: Deploying React to gcloud platform
+Step2: Deploying Flask to gcloud platform
        1: You must have Docker(https://www.docker.com/get-started) and Google Cloud SDK(https://cloud.google.com/sdk/docs/install) 
-           installed on your computer.Additionally you have to edit .yaml file that is provided to you with your 
-           GCloud project id and GCloud project name
+           installed on your computer. Then, Create a gcloud project for flask.
 
        2: Type `docker` on cmd terminal and press enter to get all required information
 

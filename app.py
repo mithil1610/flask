@@ -1,5 +1,4 @@
 import os
-from wsgiref import headers
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS, cross_origin
 import json
@@ -17,19 +16,15 @@ CORS(app)
 
 def build_preflight_response():
     response = make_response()
-    response.headers.add("Access-Control-Allow-Origin",
-                         "*")
-    response.headers.add('Access-Control-Allow-Headers', "Content-Type")
-    response.headers.add('Access-Control-Allow-Methods',
-                         "PUT, GET, POST, DELETE, OPTIONS")
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+    response.headers.add("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")
     return response
 
 
 def build_actual_response(response):
-    response.headers.set("Access-Control-Allow-Origin",
-                         "*")
-    response.headers.set('Access-Control-Allow-Methods',
-                         "PUT, GET, POST, DELETE, OPTIONS")
+    response.headers.set("Access-Control-Allow-Origin", "*")
+    response.headers.set("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")
     return response
 
 
@@ -39,16 +34,14 @@ def github():
     body = request.get_json()
     repo_name = body['repository']
     # Add your own GitHub Token to run it local
-    token = os.environ.get(
-        'GITHUB_TOKEN', 'ADD YOUR GITHUB TOKEN')
+    token = os.environ.get('GITHUB_TOKEN', 'Your GitHub Token')
     github = login(token=token)
 
     today = date.today()
 
     issues_reponse = []
     for i in range(12):
-        last_month = today + \
-            dateutil.relativedelta.relativedelta(months=-1)
+        last_month = today + dateutil.relativedelta.relativedelta(months=-1)
         types = 'type:issue'
         repo = 'repo:' + repo_name
         ranges = 'created:' + str(last_month) + '..' + str(today)
@@ -132,11 +125,15 @@ def github():
         "issues": issues_reponse,
         "type": "closed_at"
     }
+    
+    # Update your gcloud lstm url
+    
+    LSTM_API_URL = str("https://lstm-forecasting-y4hvjyxzra-uc.a.run.app") + str("/api/forecast")
 
-    created_at_response = requests.post('https://lstm-github-forecasting-snujj6cqpq-uc.a.run.app/api/forecast',
+    created_at_response = requests.post(LSTM_API_URL,
                                             json=created_at_body,
                                             headers={'content-type': 'application/json'})
-    closed_at_response = requests.post('https://lstm-github-forecasting-snujj6cqpq-uc.a.run.app/api/forecast',
+    closed_at_response = requests.post(LSTM_API_URL,
                                             json=closed_at_body,
                                             headers={'content-type': 'application/json'})
 
@@ -144,7 +141,7 @@ def github():
         "created": created_at_issues,
         "closed": closed_at_issues,
         "starCount": repository.stargazers_count,
-        "forkCount": repository.forks_count,
+        "forkCount": repository.forks_count,~
         "createdAtImageUrls": {
             **created_at_response.json(),
         },
