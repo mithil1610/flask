@@ -1,5 +1,6 @@
+from email import header
 import os
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request, make_response, Response
 from flask_cors import CORS, cross_origin
 import json
 from github3 import login
@@ -34,8 +35,19 @@ def github():
     body = request.get_json()
     repo_name = body['repository']
     # Add your own GitHub Token to run it local
-    token = os.environ.get('GITHUB_TOKEN', 'Your GitHub Token')
-    github = login(token=token)
+    token = os.environ.get(
+        'GITHUB_TOKEN', 'your GitHub Token')
+    GITHUB_URL = f"https://api.github.com/"
+    headers = {
+        "Authorization": f'token {token}'
+    }
+    params = {
+        "state": "open"
+    }
+    repository_url = GITHUB_URL + "repos/" + repo_name
+    repository = requests.get(repository_url, headers=headers)
+    repository = repository.json()
+    # github = login(token=token)
 
     today = date.today()
 
@@ -46,12 +58,26 @@ def github():
         repo = 'repo:' + repo_name
         ranges = 'created:' + str(last_month) + '..' + str(today)
         search_query = types + ' ' + repo + ' ' + ranges
-
-        for issue in github.search_issues(search_query):
+        
+        query_url = GITHUB_URL + "search/issues?q=" + search_query
+        # search_issues = github.search_issues(search_query)
+        search_issues = requests.get(query_url, headers=headers, params=params)
+        search_issues = search_issues.json()
+        issues_items = []
+        try:
+            issues_items = search_issues.get("items")
+        except KeyError:
+            error = {"error": "Data Not Available"}
+            resp = Response(json.dumps(error), mimetype='application/json')
+            resp.status_code = 500
+            return resp
+            
+        
+            
+        for issue in issues_items:
             label_name = []
             data = {}
-            current_issue = issue.as_json()
-            current_issue = json.loads(current_issue)
+            current_issue = issue
             # Get issue number
             data['issue_number'] = current_issue["number"]
             # Get created date of issue
@@ -108,9 +134,6 @@ def github():
         array = [str(key), month_issue_closed_dict[key]]
         closed_at_issues.append(array)
 
-    org, name = repo_name.split("/")
-    repository = github.repository(org, name)
-
     '''
         1. Hit LSTM Microservice by passing issues_response as body
         2. LSTM Microservice will give a list of string containing image paths hosted on google cloud storage
@@ -128,7 +151,7 @@ def github():
     
     # Update your gcloud lstm url
     
-    LSTM_API_URL = str("https://lstm-forecasting-y4hvjyxzra-uc.a.run.app") + str("/api/forecast")
+    LSTM_API_URL = "lstm_gcloud_url/" + "api/forecast"
 
     created_at_response = requests.post(LSTM_API_URL,
                                             json=created_at_body,
@@ -140,8 +163,8 @@ def github():
     json_response = {
         "created": created_at_issues,
         "closed": closed_at_issues,
-        "starCount": repository.stargazers_count,
-        "forkCount": repository.forks_count,~
+        "starCount": repository["stargazers_count"],
+        "forkCount": repository["forks_count"],
         "createdAtImageUrls": {
             **created_at_response.json(),
         },

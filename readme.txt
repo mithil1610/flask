@@ -1,5 +1,5 @@
 
-Step1: What will Flask do?
+Step 1: What will Flask do?
        1. Flask will take the repository_name from the body of the api(i.e. from React) and will fetch the created and closed issues 
           for the given repository for past 1 year
        2. Additionally, it will also fetch the author_name and other information for the created and closed issues.
@@ -8,9 +8,9 @@ Step1: What will Flask do?
           to predict and to forecast the data
        5. The response obtained from LSTM microservice is also return back to client. 
 
-Step2: Deploying Flask to gcloud platform
+Step 2: Deploying Flask to gcloud platform
        1: You must have Docker(https://www.docker.com/get-started) and Google Cloud SDK(https://cloud.google.com/sdk/docs/install) 
-           installed on your computer. Then, Create a gcloud project for flask.
+           installed on your computer. Then, Create a gcloud project for flask and enable the billing account.
 
        2: Type `docker` on cmd terminal and press enter to get all required information
 
@@ -35,15 +35,18 @@ Step2: Deploying Flask to gcloud platform
 
        12: Type `docker push <your newest created tag>` on cmd and hit enter
 
-       13: You have make your empty github repository and generate GitHub Access token and have to push your code to repository.
+       13: Generate GitHub Access token and save it somewhere.
 
        14: Go to cloud run and create new service, service name will be your GCloud project name and for container image url 
             hit select and selects your latest id and hit select and edit container port to '5000', increase the memory limit 
-            to 1GiB and add GitHub Access token in Environment variable and hit create.
+            to 1GiB and go to variables and secrets and click Environment variable and type as follow.
+               Name                     value
+           a. GITHUB_TOKEN              "Your GitHub access token"
 
-       15: This will create the service on port 5000 and will generate the url, hit the url.
+       15: Click on create, this will create the service on port 5000 and will generate the url, hit the url.
+       
 
-Step3: To run locally:
+Step 3: To run locally:
        1. In app.py, at line 43, add your GitHub token
        2. Go to cmd terminal and type following:
         a. python -m venv env
