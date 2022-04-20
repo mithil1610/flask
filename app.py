@@ -251,7 +251,7 @@ def github():
 
 
     issues_reponse = []
-    for i in range(54):
+    for i in range(24):
         last_week = today + dateutil.relativedelta.relativedelta(weeks=-1)
         types = 'type:issue'
         repo = 'repo:' + repo_name
