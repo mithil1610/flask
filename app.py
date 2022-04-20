@@ -214,113 +214,6 @@ def github():
         1. GitHub repository data obtained from GitHub API
         2. Google cloud image urls of created and closed issues obtained from LSTM microservice
     '''
-
-    repo_names = [ "angular/angular",
-        "angular/material",
-        "angular/angular-cli",
-        "SebastianM/angular-googlemaps",
-        "d3/d3",
-        "facebook/react",
-        "tensorflow/tensorflow",
-        "keras-team/keras",
-        "pallets/flask" ]
-    all_repos_created_at_issues = []
-    all_repos_closed_at_issues = []
-    for j in range(len(repo_names)):
-        today = date.today()
-        issues_reponse = []
-        # Iterating to get issues for every month for the past 24 months
-        for i in range(24):
-            last_month = today + dateutil.relativedelta.relativedelta(months=-1)
-            types = 'type:issue'
-            repo = 'repo:' + repo_names[j]
-            ranges = 'created:' + str(last_month) + '..' + str(today)
-            # Search query will create a query to fetch data for a given repository in a given time range
-            search_query = types + ' ' + repo + ' ' + ranges
-
-            # Append the search query to the GitHub API URL 
-            query_url = GITHUB_URL + "search/issues?q=" + search_query
-            # requsets.get will fetch requested query_url from the GitHub API
-            search_issues = requests.get(query_url, headers=headers, params=params)
-            # Convert the data obtained from GitHub API to JSON format
-            search_issues = search_issues.json()
-            issues_items = []
-            try:
-                # Extract "items" from search issues
-                issues_items = search_issues.get("items")
-            except KeyError:
-                error = {"error": "Data Not Available"}
-                resp = Response(json.dumps(error), mimetype='application/json')
-                resp.status_code = 500
-                print(resp)
-
-            for issue in issues_items:
-                label_name = []
-                data = {}
-                current_issue = issue
-                # Get issue number
-                data['issue_number'] = current_issue["number"]
-                # Get created date of issue
-                data['created_at'] = current_issue["created_at"][0:10]
-                if current_issue["closed_at"] == None:
-                    data['closed_at'] = current_issue["closed_at"]
-                else:
-                    # Get closed date of issue
-                    data['closed_at'] = current_issue["closed_at"][0:10]
-                for label in current_issue["labels"]:
-                    # Get label name of issue
-                    label_name.append(label["name"])
-                data['labels'] = label_name
-                # It gives state of issue like closed or open
-                data['State'] = current_issue["state"]
-                # Get Author of issue
-                data['Author'] = current_issue["user"]["login"]
-                issues_reponse.append(data)
-
-            today = last_month
-
-        df = pd.DataFrame(issues_reponse)
-
-        df_created_at = df.groupby(['created_at'], as_index=False).count()
-        dataFrameCreated = df_created_at[['created_at', 'issue_number']]
-        dataFrameCreated.columns = ['date', 'count']
-
-        created_at = df['created_at'].sort_values(ascending=True)
-        month_issue_created = pd.to_datetime(
-            pd.Series(created_at), format='%Y/%m/%d')
-        month_issue_created.index = month_issue_created.dt.to_period('m')
-        month_issue_created = month_issue_created.groupby(level=0).size()
-        month_issue_created = month_issue_created.reindex(pd.period_range(
-            month_issue_created.index.min(), month_issue_created.index.max(), freq='m'), fill_value=0)
-        month_issue_created_dict = month_issue_created.to_dict()
-        created_at_issues = []
-        sum = 0
-        for key in month_issue_created_dict.keys():
-            array = [str(key), month_issue_created_dict[key]]
-            created_at_issues.append(array)
-            sum += month_issue_created_dict[key]
-        array = [repo_names[j], sum]
-        all_repos_created_at_issues.append(array)
-
-        closed_at = df['closed_at'].sort_values(ascending=True)
-        month_issue_closed = pd.to_datetime(
-            pd.Series(closed_at), format='%Y/%m/%d')
-        month_issue_closed.index = month_issue_closed.dt.to_period('m')
-        month_issue_closed = month_issue_closed.groupby(level=0).size()
-        month_issue_closed = month_issue_closed.reindex(pd.period_range(
-            month_issue_closed.index.min(), month_issue_closed.index.max(), freq='m'), fill_value=0)
-        month_issue_closed_dict = month_issue_closed.to_dict()
-        closed_at_issues = []
-        sum = 0
-        for key in month_issue_closed_dict.keys():
-            array = [str(key), month_issue_closed_dict[key]]
-            closed_at_issues.append(array)
-            sum += month_issue_closed_dict[key]
-        array = [repo_names[j], sum]
-        all_repos_closed_at_issues.append(array)
-
-
-
     json_response = {
         "created": created_at_issues,
         "closed": closed_at_issues,
@@ -332,8 +225,6 @@ def github():
         "closedAtImageUrls": {
             **closed_at_response.json(),
         },
-        "all_repos_created_at_issues": all_repos_created_at_issues,
-        "all_repos_closed_at_issues": all_repos_closed_at_issues,
     }
     # Return the response back to client (React app)
     return jsonify(json_response)
