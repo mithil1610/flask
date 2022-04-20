@@ -247,6 +247,76 @@ def github():
         array = [repo_names[i], url_data["forks_count"]]
         forks_count.append(array)
 
+
+
+
+    issues_reponse = []
+    for i in range(54):
+        last_week = today + dateutil.relativedelta.relativedelta(weeks=-1)
+        types = 'type:issue'
+        repo = 'repo:' + repo_name
+        ranges = 'created:' + str(last_week) + '..' + str(today)
+        per_page = 'per_page=100'
+        # Search query will create a query to fetch data for a given repository in a given time range
+        search_query = types + ' ' + repo + ' ' + ranges
+
+        # Append the search query to the GitHub API URL 
+        query_url = GITHUB_URL + "search/issues?q=" + search_query + "&" + per_page
+        # requsets.get will fetch requested query_url from the GitHub API
+        search_issues = requests.get(query_url, headers=headers, params=params)
+        # Convert the data obtained from GitHub API to JSON format
+        search_issues = search_issues.json()
+        issues_items = []
+        try:
+            # Extract "items" from search issues
+            issues_items = search_issues.get("items")
+        except KeyError:
+            error = {"error": "Data Not Available"}
+            resp = Response(json.dumps(error), mimetype='application/json')
+            resp.status_code = 500
+            print(resp)
+        if issues_items is None:
+            continue
+        for issue in issues_items:
+            label_name = []
+            data = {}
+            current_issue = issue
+            # Get issue number
+            data['issue_number'] = current_issue["number"]
+            # Get created date of issue
+            data['created_at'] = current_issue["created_at"][0:10]
+            if current_issue["closed_at"] == None:
+                data['closed_at'] = current_issue["closed_at"]
+            else:
+                # Get closed date of issue
+                data['closed_at'] = current_issue["closed_at"][0:10]
+            for label in current_issue["labels"]:
+                # Get label name of issue
+                label_name.append(label["name"])
+            data['labels'] = label_name
+            # It gives state of issue like closed or open
+            data['State'] = current_issue["state"]
+            # Get Author of issue
+            data['Author'] = current_issue["user"]["login"]
+            issues_reponse.append(data)
+
+        today = last_week
+
+    df = pd.DataFrame(issues_reponse)
+
+    closed_at = df['closed_at'].sort_values(ascending=True)
+    month_issue_closed = pd.to_datetime(
+        pd.Series(closed_at), format='%Y/%m/%d')
+    month_issue_closed.index = month_issue_closed.dt.to_period('w')
+    month_issue_closed = month_issue_closed.groupby(level=0).size()
+    month_issue_closed = month_issue_closed.reindex(pd.period_range(
+        month_issue_closed.index.min(), month_issue_closed.index.max(), freq='w'), fill_value=0)
+    month_issue_closed_dict = month_issue_closed.to_dict()
+    closed_at_issues_week = []
+    for key in month_issue_closed_dict.keys():
+        array = [str(key), month_issue_closed_dict[key]]
+        closed_at_issues_week.append(array)
+
     json_response = {
         "created": created_at_issues,
         "closed": closed_at_issues,
@@ -261,6 +331,7 @@ def github():
         "total_issues": total_issues,
         "stars_count": stars_count,
         "forks_count": forks_count,
+        "closed_at_issues_week": closed_at_issues_week,
     }
     # Return the response back to client (React app)
     return jsonify(json_response)
