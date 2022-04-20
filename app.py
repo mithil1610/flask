@@ -218,7 +218,7 @@ def github():
     repo_names = [ "angular/angular",
         "angular/material",
         "angular/angular-cli",
-        "SebastianM/angular-googlemaps",
+        "SebastianM/angular-google-maps",
         "d3/d3",
         "facebook/react",
         "tensorflow/tensorflow",
@@ -236,6 +236,17 @@ def github():
         array = [repo_names[i],  0 if r.json().get("total_count") is None else r.json().get("total_count")]
         total_issues.append(array)
 
+    stars_count = []
+    forks_count = []
+    for i in range(len(repo_names)):
+        url = GITHUB_URL + "repos/" + repo_names[i]
+        url_data = requests.get(url, headers=headers)
+        url_data = url_data.json()
+        array = [repo_names[i], url_data["stargazers_count"]]
+        stars_count.append(array)
+        array = [repo_names[i], url_data["forks_count"]]
+        forks_count.append(array)
+
     json_response = {
         "created": created_at_issues,
         "closed": closed_at_issues,
@@ -248,6 +259,8 @@ def github():
             **closed_at_response.json(),
         },
         "total_issues": total_issues,
+        "stars_count": stars_count,
+        "forks_count": forks_count,
     }
     # Return the response back to client (React app)
     return jsonify(json_response)
