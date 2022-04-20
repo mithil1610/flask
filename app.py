@@ -214,6 +214,28 @@ def github():
         1. GitHub repository data obtained from GitHub API
         2. Google cloud image urls of created and closed issues obtained from LSTM microservice
     '''
+
+    repo_names = [ "angular/angular",
+        "angular/material",
+        "angular/angular-cli",
+        "SebastianM/angular-googlemaps",
+        "d3/d3",
+        "facebook/react",
+        "tensorflow/tensorflow",
+        "keras-team/keras",
+        "pallets/flask" ]
+    total_issues = []
+    for i in range(len(repo_names)):
+        types = 'type:issue'
+        repo = 'repo:' + repo_names[i]
+        ranges = 'created:' + str(date.today() + dateutil.relativedelta.relativedelta(months=-24)) + '..' + str(date.today())
+        per_page = 'per_page=100'
+        search_query = types + ' ' + repo + ' ' + ranges
+        query_url = GITHUB_URL + "search/issues?q=" + search_query + "&" + per_page
+        r = requests.get(query_url, headers=headers, params=params)
+        array = [repo_names[i],  0 if r.json().get("total_count") is None else r.json().get("total_count")]
+        total_issues.append(array)
+
     json_response = {
         "created": created_at_issues,
         "closed": closed_at_issues,
@@ -225,6 +247,7 @@ def github():
         "closedAtImageUrls": {
             **closed_at_response.json(),
         },
+        "total_issues": total_issues,
     }
     # Return the response back to client (React app)
     return jsonify(json_response)
