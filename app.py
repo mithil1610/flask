@@ -131,16 +131,16 @@ def github():
 
     df = pd.DataFrame(issues_reponse)
 
-    # Daily Created Issues
-    df_created_at = df.groupby(['created_at'], as_index=False).count()
-    dataFrameCreated = df_created_at[['created_at', 'issue_number']]
-    dataFrameCreated.columns = ['date', 'count']
-
     '''
     Monthly Created Issues
     Format the data by grouping the data by month
     '''
     if not df.empty:
+        # Daily Created Issues
+        df_created_at = df.groupby(['created_at'], as_index=False).count()
+        dataFrameCreated = df_created_at[['created_at', 'issue_number']]
+        dataFrameCreated.columns = ['date', 'count']
+        
         created_at = df['created_at']
         month_issue_created = pd.to_datetime(
             pd.Series(created_at), format='%Y/%m/%d')
@@ -303,6 +303,7 @@ def github():
 
     df = pd.DataFrame(issues_reponse)
     
+    closed_at_issues_week = []
     if not df.empty:
         closed_at = df['closed_at'].sort_values(ascending=True)
         month_issue_closed = pd.to_datetime(
@@ -312,7 +313,6 @@ def github():
         month_issue_closed = month_issue_closed.reindex(pd.period_range(
             month_issue_closed.index.min(), month_issue_closed.index.max(), freq='w'), fill_value=0)
         month_issue_closed_dict = month_issue_closed.to_dict()
-        closed_at_issues_week = []
         for key in month_issue_closed_dict.keys():
             array = [str(key), month_issue_closed_dict[key]]
             closed_at_issues_week.append(array)
