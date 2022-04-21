@@ -247,7 +247,7 @@ def github():
         array = [repo_names[i], url_data["forks_count"]]
         forks_count.append(array)
 
-    #today = date.today()
+    today = date.today()
     issues_reponse = []
     for i in range(23):
         last_week = today + dateutil.relativedelta.relativedelta(weeks=-1)
