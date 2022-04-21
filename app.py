@@ -135,6 +135,8 @@ def github():
     Monthly Created Issues
     Format the data by grouping the data by month
     '''
+    created_at_issues = []
+    closed_at_issues = []
     if not df.empty:
         # Daily Created Issues
         df_created_at = df.groupby(['created_at'], as_index=False).count()
@@ -149,7 +151,6 @@ def github():
         month_issue_created = month_issue_created.reindex(pd.period_range(
             month_issue_created.index.min(), month_issue_created.index.max(), freq='m'), fill_value=0)
         month_issue_created_dict = month_issue_created.to_dict()
-        created_at_issues = []
         for key in month_issue_created_dict.keys():
             array = [str(key), month_issue_created_dict[key]]
             created_at_issues.append(array)
@@ -167,7 +168,6 @@ def github():
         month_issue_closed = month_issue_closed.reindex(pd.period_range(
             month_issue_closed.index.min(), month_issue_closed.index.max(), freq='m'), fill_value=0)
         month_issue_closed_dict = month_issue_closed.to_dict()
-        closed_at_issues = []
         for key in month_issue_closed_dict.keys():
             array = [str(key), month_issue_closed_dict[key]]
             closed_at_issues.append(array)
