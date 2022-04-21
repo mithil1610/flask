@@ -139,37 +139,38 @@ def github():
     '''
     Monthly Created Issues
     Format the data by grouping the data by month
-    ''' 
-    created_at = df['created_at']
-    month_issue_created = pd.to_datetime(
-        pd.Series(created_at), format='%Y/%m/%d')
-    month_issue_created.index = month_issue_created.dt.to_period('m')
-    month_issue_created = month_issue_created.groupby(level=0).size()
-    month_issue_created = month_issue_created.reindex(pd.period_range(
-        month_issue_created.index.min(), month_issue_created.index.max(), freq='m'), fill_value=0)
-    month_issue_created_dict = month_issue_created.to_dict()
-    created_at_issues = []
-    for key in month_issue_created_dict.keys():
-        array = [str(key), month_issue_created_dict[key]]
-        created_at_issues.append(array)
-
     '''
-    Monthly Closed Issues
-    Format the data by grouping the data by month
-    ''' 
-    
-    closed_at = df['closed_at'].sort_values(ascending=True)
-    month_issue_closed = pd.to_datetime(
-        pd.Series(closed_at), format='%Y/%m/%d')
-    month_issue_closed.index = month_issue_closed.dt.to_period('m')
-    month_issue_closed = month_issue_closed.groupby(level=0).size()
-    month_issue_closed = month_issue_closed.reindex(pd.period_range(
-        month_issue_closed.index.min(), month_issue_closed.index.max(), freq='m'), fill_value=0)
-    month_issue_closed_dict = month_issue_closed.to_dict()
-    closed_at_issues = []
-    for key in month_issue_closed_dict.keys():
-        array = [str(key), month_issue_closed_dict[key]]
-        closed_at_issues.append(array)
+    if not df.empty:
+        created_at = df['created_at']
+        month_issue_created = pd.to_datetime(
+            pd.Series(created_at), format='%Y/%m/%d')
+        month_issue_created.index = month_issue_created.dt.to_period('m')
+        month_issue_created = month_issue_created.groupby(level=0).size()
+        month_issue_created = month_issue_created.reindex(pd.period_range(
+            month_issue_created.index.min(), month_issue_created.index.max(), freq='m'), fill_value=0)
+        month_issue_created_dict = month_issue_created.to_dict()
+        created_at_issues = []
+        for key in month_issue_created_dict.keys():
+            array = [str(key), month_issue_created_dict[key]]
+            created_at_issues.append(array)
+
+        '''
+        Monthly Closed Issues
+        Format the data by grouping the data by month
+        ''' 
+        
+        closed_at = df['closed_at'].sort_values(ascending=True)
+        month_issue_closed = pd.to_datetime(
+            pd.Series(closed_at), format='%Y/%m/%d')
+        month_issue_closed.index = month_issue_closed.dt.to_period('m')
+        month_issue_closed = month_issue_closed.groupby(level=0).size()
+        month_issue_closed = month_issue_closed.reindex(pd.period_range(
+            month_issue_closed.index.min(), month_issue_closed.index.max(), freq='m'), fill_value=0)
+        month_issue_closed_dict = month_issue_closed.to_dict()
+        closed_at_issues = []
+        for key in month_issue_closed_dict.keys():
+            array = [str(key), month_issue_closed_dict[key]]
+            closed_at_issues.append(array)
 
     '''
         1. Hit LSTM Microservice by passing issues_response as body
@@ -301,19 +302,20 @@ def github():
         today = last_week
 
     df = pd.DataFrame(issues_reponse)
-
-    closed_at = df['closed_at'].sort_values(ascending=True)
-    month_issue_closed = pd.to_datetime(
-        pd.Series(closed_at), format='%Y/%m/%d')
-    month_issue_closed.index = month_issue_closed.dt.to_period('w')
-    month_issue_closed = month_issue_closed.groupby(level=0).size()
-    month_issue_closed = month_issue_closed.reindex(pd.period_range(
-        month_issue_closed.index.min(), month_issue_closed.index.max(), freq='w'), fill_value=0)
-    month_issue_closed_dict = month_issue_closed.to_dict()
-    closed_at_issues_week = []
-    for key in month_issue_closed_dict.keys():
-        array = [str(key), month_issue_closed_dict[key]]
-        closed_at_issues_week.append(array)
+    
+    if not df.empty:
+        closed_at = df['closed_at'].sort_values(ascending=True)
+        month_issue_closed = pd.to_datetime(
+            pd.Series(closed_at), format='%Y/%m/%d')
+        month_issue_closed.index = month_issue_closed.dt.to_period('w')
+        month_issue_closed = month_issue_closed.groupby(level=0).size()
+        month_issue_closed = month_issue_closed.reindex(pd.period_range(
+            month_issue_closed.index.min(), month_issue_closed.index.max(), freq='w'), fill_value=0)
+        month_issue_closed_dict = month_issue_closed.to_dict()
+        closed_at_issues_week = []
+        for key in month_issue_closed_dict.keys():
+            array = [str(key), month_issue_closed_dict[key]]
+            closed_at_issues_week.append(array)
 
     json_response = {
         "created": created_at_issues,
