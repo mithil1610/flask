@@ -226,9 +226,9 @@ def github():
                                        json=closed_at_body,
                                        headers={'content-type': 'application/json'})
     
-    pulls_response_response = requests.post("https://lstm-forecast-tqzys7bsda-uc.a.run.app/api/pulls",
-                                       json=pulls_response_body,
-                                       headers={'content-type': 'application/json'})
+    # pulls_response_response = requests.post("https://lstm-forecast-tqzys7bsda-uc.a.run.app/api/pulls",
+    #                                    json=pulls_response_body,
+    #                                    headers={'content-type': 'application/json'})
     
     '''
     Create the final response that consists of:
@@ -347,9 +347,6 @@ def github():
         },
         "closedAtImageUrls": {
             **closed_at_response.json(),
-        },
-        "pullsImageUrls": {
-            **pulls_response_response.json(),
         },
         "total_issues": total_issues,
         "stars_count": stars_count,
