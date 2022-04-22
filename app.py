@@ -172,6 +172,17 @@ def github():
             array = [str(key), month_issue_closed_dict[key]]
             closed_at_issues.append(array)
 
+    repository_url = GITHUB_URL + "repos/" + repo_name +'/pulls?state=created'
+    r = requests.get(repository_url, headers=headers)
+    pulls_response = r.json()
+    another_page = True
+    while another_page:
+        if 'next' in r.links:
+            r = requests.get(r.links['next']['url'], headers=headers)
+            pulls_response = pulls_response + r.json()
+        else:
+            another_page = False
+
     '''
         1. Hit LSTM Microservice by passing issues_response as body
         2. LSTM Microservice will give a list of string containing image paths hosted on google cloud storage
@@ -182,13 +193,13 @@ def github():
         "issues": issues_reponse,
         "type": "created_at",
         "repo": repo_name.split("/")[1],
-        "repo_name": repo_name
+        "pulls_response": pulls_response
     }
     closed_at_body = {
         "issues": issues_reponse,
         "type": "closed_at",
         "repo": repo_name.split("/")[1],
-        "repo_name": repo_name
+        "pulls_response": pulls_response
     }
 
     # Update your Google cloud deployed LSTM app URL (NOTE: DO NOT REMOVE "/")
