@@ -226,7 +226,7 @@ def github():
                                        json=closed_at_body,
                                        headers={'content-type': 'application/json'})
     
-    pulls_response_response = requests.post(LSTM_API_URL,
+    pulls_response_response = requests.post("https://lstm-forecast-tqzys7bsda-uc.a.run.app/api/pulls",
                                        json=pulls_response_body,
                                        headers={'content-type': 'application/json'})
     
