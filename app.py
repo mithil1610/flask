@@ -192,13 +192,16 @@ def github():
     created_at_body = {
         "issues": issues_reponse,
         "type": "created_at",
-        "repo": repo_name.split("/")[1],
-        "pulls": pulls_response
+        "repo": repo_name.split("/")[1]
     }
     closed_at_body = {
         "issues": issues_reponse,
         "type": "closed_at",
-        "repo": repo_name.split("/")[1],
+        "repo": repo_name.split("/")[1]
+    }
+    
+    pulls_response_body = {
+        "repo": repo_name,
         "pulls": pulls_response
     }
 
@@ -221,6 +224,10 @@ def github():
     '''    
     closed_at_response = requests.post(LSTM_API_URL,
                                        json=closed_at_body,
+                                       headers={'content-type': 'application/json'})
+    
+    pulls_response_response = requests.post(LSTM_API_URL,
+                                       json=pulls_response_body,
                                        headers={'content-type': 'application/json'})
     
     '''
@@ -340,6 +347,9 @@ def github():
         },
         "closedAtImageUrls": {
             **closed_at_response.json(),
+        },
+        "pullsImageUrls": {
+            **pulls_response_response.json(),
         },
         "total_issues": total_issues,
         "stars_count": stars_count,
