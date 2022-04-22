@@ -172,7 +172,7 @@ def github():
             array = [str(key), month_issue_closed_dict[key]]
             closed_at_issues.append(array)
 
-    repository_url = GITHUB_URL + "repos/" + repo_name +'/pulls?state=created'
+    repository_url = GITHUB_URL + "repos/" + 'angular/angular' +'/pulls?state=created'
     r = requests.get(repository_url, headers=headers)
     pulls_response = r.json()
     another_page = True
