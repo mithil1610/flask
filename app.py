@@ -181,12 +181,14 @@ def github():
     created_at_body = {
         "issues": issues_reponse,
         "type": "created_at",
-        "repo": repo_name.split("/")[1]
+        "repo": repo_name.split("/")[1],
+        "repo_name": repo_name
     }
     closed_at_body = {
         "issues": issues_reponse,
         "type": "closed_at",
-        "repo": repo_name.split("/")[1]
+        "repo": repo_name.split("/")[1],
+        "repo_name": repo_name
     }
 
     # Update your Google cloud deployed LSTM app URL (NOTE: DO NOT REMOVE "/")
