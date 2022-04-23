@@ -172,7 +172,7 @@ def github():
             array = [str(key), month_issue_closed_dict[key]]
             closed_at_issues.append(array)
 
-    repository_url = GITHUB_URL + "repos/" + 'angular/angular' +'/pulls?state=created'
+    repository_url = GITHUB_URL + "repos/" + repo_name +'/pulls?state=created'
     r = requests.get(repository_url, headers=headers)
     pulls_response = r.json()
     another_page = True
@@ -180,6 +180,18 @@ def github():
         if 'next' in r.links:
             r = requests.get(r.links['next']['url'], headers=headers)
             pulls_response = pulls_response + r.json()
+        else:
+            another_page = False
+    
+    repository_url = GITHUB_URL + "repos/" + repo_name +'/commits'
+    r = requests.get(repository_url, headers=headers)
+    commits_response = r.json()
+    count = 1
+    another_page = True
+    while another_page and count < 100:
+        if 'next' in r.links:
+            r = requests.get(r.links['next']['url'], headers=headers)
+            commits_response = commits_response + r.json()
         else:
             another_page = False
 
@@ -204,6 +216,11 @@ def github():
         "repo": repo_name,
         "pulls": pulls_response
     }
+    
+    commits_response_body = {
+        "repo": repo_name,
+        "commits": commits_response
+    }
 
     # Update your Google cloud deployed LSTM app URL (NOTE: DO NOT REMOVE "/")
     LSTM_API_URL = "https://lstm-forecast-tqzys7bsda-uc.a.run.app/" + "api/forecast"
@@ -226,9 +243,13 @@ def github():
                                        json=closed_at_body,
                                        headers={'content-type': 'application/json'})
     
-    # pulls_response_response = requests.post("https://lstm-forecast-tqzys7bsda-uc.a.run.app/api/pulls",
-    #                                    json=pulls_response_body,
-    #                                    headers={'content-type': 'application/json'})
+    pulls_response_response = requests.post("https://lstm-forecast-tqzys7bsda-uc.a.run.app/api/pulls",
+                                       json=pulls_response_body,
+                                       headers={'content-type': 'application/json'})
+    
+    commits_response_response = requests.post("https://lstm-forecast-tqzys7bsda-uc.a.run.app/api/commits",
+                                       json=commits_response_body,
+                                       headers={'content-type': 'application/json'})
     
     '''
     Create the final response that consists of:
@@ -347,6 +368,12 @@ def github():
         },
         "closedAtImageUrls": {
             **closed_at_response.json(),
+        },
+        "pullsImageUrls": {
+            **pulls_response_response.json(),
+        },
+        "commitsImageUrls": {
+            **commits_response_response.json(),
         },
         "total_issues": total_issues,
         "stars_count": stars_count,
