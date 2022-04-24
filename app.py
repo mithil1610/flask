@@ -183,6 +183,17 @@ def github():
         else:
             another_page = False
     
+    repository_url = GITHUB_URL + "repos/" + repo_name +'/branch'
+    r = requests.get(repository_url, headers=headers)
+    branch_response = r.json()
+    another_page = True
+    while another_page:
+        if 'next' in r.links:
+            r = requests.get(r.links['next']['url'], headers=headers)
+            branch_response = branch_response + r.json()
+        else:
+            another_page = False
+    
     # repository_url = GITHUB_URL + "repos/" + repo_name +'/commits'
     # r = requests.get(repository_url, headers=headers)
     # commits_response = r.json()
@@ -379,6 +390,7 @@ def github():
         "stars_count": stars_count,
         "forks_count": forks_count,
         "closed_at_issues_week": closed_at_issues_week,
+        "branchs": branch_response
     }
     # Return the response back to client (React app)
     return jsonify(json_response)
