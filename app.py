@@ -258,9 +258,9 @@ def github():
                                        json=pulls_response_body,
                                        headers={'content-type': 'application/json'})
     
-    # commits_response_response = requests.post("https://lstm-forecast-tqzys7bsda-uc.a.run.app/api/commits",
-    #                                    json=commits_response_body,
-    #                                    headers={'content-type': 'application/json'})
+    commits_response_response = requests.post("https://lstm-forecast-tqzys7bsda-uc.a.run.app/api/commits",
+                                       json=commits_response_body,
+                                       headers={'content-type': 'application/json'})
     
     '''
     Create the final response that consists of:
@@ -383,9 +383,9 @@ def github():
         "pullsImageUrls": {
             **pulls_response_response.json(),
         },
-        # "commitsImageUrls": {
-        #     **commits_response_response.json(),
-        # },
+        "commitsImageUrls": {
+            **commits_response_response.json(),
+        },
         "total_issues": total_issues,
         "stars_count": stars_count,
         "forks_count": forks_count,
