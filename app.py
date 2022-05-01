@@ -385,6 +385,7 @@ def github():
     tensorflow_count = 0
     keras_count = 0
     flask_count = 0
+    tags_count = []
 
     for i in range(len(df1)):
         if 'angular' in df1['tags'][i].split(',') or 'js' in df1['tags'][i].split(',') or 'javascript' in df1['tags'][i].split(','):
@@ -405,6 +406,15 @@ def github():
             keras_count += 1
         if 'flask' in df1['tags'][i].split(',') or 'py' in df1['tags'][i].split(',') or 'python' in df1['tags'][i].split(','):
             flask_count += 1
+    tags_count.append(['angular', angular_count])
+    tags_count.append(['angular-material', material_count])
+    tags_count.append(['angular-cli', cli_count])
+    tags_count.append(['angular-google-maps', maps_count])
+    tags_count.append(['d3', d3_count])
+    tags_count.append(['react', react_count])
+    tags_count.append(['tensorflow', tensorflow_count])
+    tags_count.append(['keras', keras_count])
+    tags_count.append(['flask', flask_count])
 
     json_response = {
         "created": created_at_issues,
@@ -428,16 +438,8 @@ def github():
         "forks_count": forks_count,
         "closed_at_issues_week": closed_at_issues_week,
         "branchs": branch_response,
-        
-        'angular': angular_count, 
-        'angular-material': material_count,
-        'angular-cli': cli_count,
-        'angular-google-maps': maps_count,
-        'd3': d3_count,
-        'react': react_count,
-        'tensorflow': tensorflow_count,
-        'keras': keras_count,
-        'flask': flask_count
+
+        "tags_count": tags_count
     }
     # Return the response back to client (React app)
     return jsonify(json_response)
