@@ -369,6 +369,43 @@ def github():
             array = [str(key), month_issue_closed_dict[key]]
             closed_at_issues_week.append(array)
 
+
+
+    df = pd.read_csv('answers.csv')
+    df1 = df[['qid', 'tags']]
+    df1 = df1.drop_duplicates(subset=['qid', 'tags'], keep='last')
+    df1 = df1.reset_index(drop=True)
+
+    angular_count = 0
+    material_count = 0
+    cli_count = 0
+    maps_count = 0
+    d3_count = 0
+    react_count = 0
+    tensorflow_count = 0
+    keras_count = 0
+    flask_count = 0
+
+    for i in range(len(df1)):
+        if 'angular' in df1['tags'][i].split(',') or 'js' in df1['tags'][i].split(',') or 'javascript' in df1['tags'][i].split(','):
+            angular_count += 1
+        if 'angular-material' in df1['tags'][i].split(',') or 'material' in df1['tags'][i].split(','):
+            material_count += 1
+        if 'angular-cli' in df1['tags'][i].split(',') or 'cli' in df1['tags'][i].split(','):
+            cli_count += 1
+        if 'angular-google-maps' in df1['tags'][i].split(',') or 'maps' in df1['tags'][i].split(',') or 'maps' in df1['tags'][i].split(','):
+            maps_count += 1
+        if 'd3' in df1['tags'][i].split(',') or 'js' in df1['tags'][i].split(',') or 'javascript' in df1['tags'][i].split(','):
+            d3_count += 1
+        if 'react' in df1['tags'][i].split(',') or 'js' in df1['tags'][i].split(',') or 'javascript' in df1['tags'][i].split(','):
+            react_count += 1
+        if 'tensorflow' in df1['tags'][i].split(',') or 'py' in df1['tags'][i].split(',') or 'python' in df1['tags'][i].split(','):
+            tensorflow_count += 1
+        if 'keras' in df1['tags'][i].split(',') or 'py' in df1['tags'][i].split(',') or 'python' in df1['tags'][i].split(','):
+            keras_count += 1
+        if 'flask' in df1['tags'][i].split(',') or 'py' in df1['tags'][i].split(',') or 'python' in df1['tags'][i].split(','):
+            flask_count += 1
+
     json_response = {
         "created": created_at_issues,
         "closed": closed_at_issues,
@@ -390,7 +427,17 @@ def github():
         "stars_count": stars_count,
         "forks_count": forks_count,
         "closed_at_issues_week": closed_at_issues_week,
-        "branchs": branch_response
+        "branchs": branch_response,
+        
+        'angular': angular_count, 
+        'angular-material': material_count,
+        'angular-cli': cli_count,
+        'angular-google-maps': maps_count,
+        'd3': d3_count,
+        'react': react_count,
+        'tensorflow': tensorflow_count,
+        'keras': keras_count,
+        'flask': flask_count
     }
     # Return the response back to client (React app)
     return jsonify(json_response)
